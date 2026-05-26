@@ -1,0 +1,57 @@
+@import "tailwindcss";
+@import "mapbox-gl/dist/mapbox-gl.css";
+
+@theme {
+  --color-primary-red: #E53935;
+  --color-soft-red: #FFEBEE;
+  --color-dark-red: #C62828;
+  --color-darker-red: #7F0000;
+  
+  --color-bg-color: #FAFAFA;
+  --color-card-bg: #FFFFFF;
+  
+  --color-text-dark: #1A1A1A;
+  --color-text-gray: #666666;
+  --color-text-light: #999999;
+
+  --border-radius: 24px;
+  --border-radius-sm: 16px;
+  --border-radius-lg: 32px;
+}
+
+:root {
+  --background: var(--color-bg-color);
+  --foreground: var(--color-text-dark);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  display: flex;
+  justify-content: center;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Hide scrollbar for layout */
+::-webkit-scrollbar {
+    display: none;
+}
+
+/* Base custom styles to keep it consistent with the web prototype */
+.app-container {
+    width: 100%;
+    max-width: 480px; 
+    background-color: var(--color-bg-color);
+    min-height: 100vh;
+    position: relative;
+    padding-bottom: 100px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.06);
+    overflow-x: hidden;
+}
+
+/* Mapbox specific override */
+.mapboxgl-ctrl-bottom-right,
+.mapboxgl-ctrl-bottom-left {
+    display: none !important;
+}

@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toronto Student App</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href='https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.css' rel='stylesheet' />
+    <script src='https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.js'></script>
+</head>
+<body>
+    <!-- Toukia Animated Loading Screen -->
+    <div id="toukia-loader">
+        <div class="loader-logo-lockup">
+            <div class="loader-icon">
+                <div class="loader-t">T</div>
+                <div class="loader-dot"></div>
+            </div>
+            <div class="loader-text">
+                <span style="--i:1">T</span>
+                <span style="--i:2">O</span>
+                <span style="--i:3">U</span>
+                <span style="--i:4; color:var(--primary-red);">K</span>
+                <span style="--i:5; color:var(--primary-red);">I</span>
+                <span style="--i:6">A</span>
+            </div>
+        </div>
+        <!-- Banks Sheet Overlay -->
+        <div id="banks-sheet" class="app-content-sheet" style="position:fixed; top:100vh; z-index: 200; transition: top 0.4s cubic-bezier(0.16, 1, 0.3, 1); background: var(--bg-color); left:0; right:0; bottom:0; overflow-y:auto; padding-bottom:40px; margin-top:0;">
+            <div class="sheet-drag-handle" id="close-banks-sheet" style="cursor:pointer; margin-top:16px;"></div>
+            <div style="padding: 0 24px;">
+                <h2 style="margin-bottom: 24px;">Top Banks</h2>
+                
+                <!-- RBC Card -->
+                <div class="bank-card">
+                    <div class="dotted-logo rbc-logo">
+                        <div class="dot yellow"></div><div class="dot blue"></div>
+                        <div class="dot blue"></div><div class="dot blue"></div>
+                    </div>
+                    <div class="bank-info">
+                        <h4>Royal Bank</h4>
+                        <p>No monthly fee for students</p>
+                    </div>
+                </div>
+                <!-- TD Card -->
+                <div class="bank-card">
+                    <div class="dotted-logo td-logo">
+                        <div class="dot green"></div><div class="dot green"></div>
+                        <div class="dot transparent"></div><div class="dot green"></div>
+                    </div>
+                    <div class="bank-info">
+                        <h4>Toronto Dominion</h4>
+                        <p>Unlimited student transactions</p>
+                    </div>
+                </div>
+                <!-- CIBC Card -->
+                <div class="bank-card">
+                    <div class="dotted-logo cibc-logo">
+                        <div class="dot red"></div><div class="dot red"></div>
+                        <div class="dot yellow"></div><div class="dot red"></div>
+                    </div>
+                    <div class="bank-info">
+                        <h4>Canadian Imperial</h4>
+                        <p>Free SPC membership</p>
+                    </div>
+                </div>
+                <!-- BMO Card -->
+                <div class="bank-card">
+                    <div class="dotted-logo bmo-logo">
+                        <div class="dot blue"></div><div class="dot red"></div>
+                        <div class="dot red"></div><div class="dot blue"></div>
+                    </div>
+                    <div class="bank-info">
+                        <h4>Bank of Montreal</h4>
+                        <p>Plus Plan for Students</p>
+                    </div>
+                </div>
+                <!-- Scotiabank Card -->
+                <div class="bank-card">
+                    <div class="dotted-logo scotia-logo">
+                        <div class="dot red" style="border-radius: 4px;"></div><div class="dot red"></div>
+                        <div class="dot red"></div><div class="dot red" style="border-radius: 4px;"></div>
+                    </div>
+                    <div class="bank-info">
+                        <h4>Scotiabank</h4>
+                        <p>Earn SCENE points</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Map-First Background -->
+    <div class="map-viewport" id="map-viewport">
+        <!-- Live Mapbox Container -->
+        <div id="mapbox-container" style="width: 100%; height: 100%;"></div>
+        
+        <!-- Toggles -->
+        <div class="map-toggles">
+            <button class="map-pill active" data-map="ttc"><i class="fa-solid fa-bus"></i><span>TTC</span></button>
+            <button class="map-pill" data-map="subway"><i class="fa-solid fa-train-subway"></i><span>Subway</span></button>
+            <button class="map-pill" data-map="train"><i class="fa-solid fa-train"></i><span>Train</span></button>
+            <button class="map-pill" data-map="rides"><i class="fa-solid fa-car"></i><span>Rides</span></button>
+        </div>
+
+        <button id="btn-collapse-map" class="btn-collapse-map" style="display: none;">
+            <i class="fa-solid fa-compress"></i> Collapse
+        </button>
+
+        <!-- Floating Locate Button -->
+        <button id="btn-locate-me" class="btn-locate-me">
+            <i class="fa-solid fa-location-crosshairs"></i>
+        </button>
+    </div>
+
+    <div class="app-container">
+        <!-- Header Section -->
+        <header class="top-header">
+            <div class="user-info">
+                <div class="avatar">
+                    <img src="https://i.pravatar.cc/150?img=11" alt="User Profile">
+                </div>
+                <div class="greeting">
+                    <h1>Hi, Ahmed! 👋</h1>
+                    <p>Welcome to Toronto 🇨🇦</p>
+                </div>
+            </div>
+            <div class="notification">
+                <i class="fa-regular fa-bell"></i>
+                <span class="badge">3</span>
+            </div>
+        </header>
+
+        <div class="app-content-sheet" id="app-content-sheet">
+            <div class="sheet-drag-handle"></div>
+
+            <!-- NEW Floating Search Bar -->
+            <div class="floating-search-bar" id="floating-search-bar">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="floating-search-input" placeholder="Search places, stations...">
+            </div>
+            
+            <!-- NEW Expanded Search Panel -->
+            <div class="floating-search-panel" id="floating-search-panel">
+                <div class="panel-header">
+                    <i class="fa-solid fa-arrow-left" id="close-search-panel"></i>
+                    <input type="text" id="panel-search-input" placeholder="Where to?">
+                </div>
+                <div class="panel-results" id="panel-results">
+                    <!-- Suggestions go here -->
+                </div>
+            </div>
+
+        <!-- Essential Services Grid (Updated Icons/Services) -->
+        <section class="essential-services">
+            <div class="section-header">
+                <h3>Essential Services</h3>
+                <a href="#" class="view-all">View all</a>
+            </div>
+            <div class="services-grid">
+                <div class="service-item">
+                    <div class="icon-box bg-red-orange"><i class="fa-solid fa-sim-card"></i></div>
+                    <span>1. SIM Card</span>
+                </div>
+                <div class="service-item" id="btn-banks" style="cursor:pointer;">
+                    <div class="icon-box bg-navy"><i class="fa-solid fa-building-columns"></i></div>
+                    <span>2. Bank Account</span>
+                </div>
+                <div class="service-item">
+                    <div class="icon-box bg-orange"><i class="fa-solid fa-house-chimney"></i></div>
+                    <span>3. Find Housing</span>
+                </div>
+                <div class="service-item">
+                    <div class="icon-box bg-purple"><i class="fa-solid fa-train"></i></div>
+                    <span>4. Move Around</span>
+                </div>
+                <div class="service-item">
+                    <div class="icon-box bg-coral"><i class="fa-solid fa-hammer"></i></div>
+                    <span>5. Home Services</span>
+                </div>
+                <div class="service-item">
+                    <div class="icon-box bg-teal"><i class="fa-solid fa-basket-shopping"></i></div>
+                    <span>6. Groceries</span>
+                </div>
+                <div class="service-item">
+                    <div class="icon-box bg-blue"><i class="fa-regular fa-snowflake"></i></div>
+                    <span>7. Winter Survival</span>
+                </div>
+                <div class="service-item">
+                    <div class="icon-box bg-green"><i class="fa-solid fa-tags"></i></div>
+                    <span>8. Discounts</span>
+                </div>
+                <div class="service-item">
+                    <div class="icon-box bg-pink"><i class="fa-solid fa-heart-pulse"></i></div>
+                    <span>9. Healthcare</span>
+                </div>
+                <div class="service-item">
+                    <div class="icon-box bg-cyan"><i class="fa-solid fa-users"></i></div>
+                    <span>10. Meetups</span>
+                </div>
+                <div class="service-item">
+                    <div class="icon-box bg-gray"><i class="fa-solid fa-file-signature"></i></div>
+                    <span>11. Documents</span>
+                </div>
+                <div class="service-item">
+                    <div class="icon-box bg-brown"><i class="fa-solid fa-briefcase"></i></div>
+                    <span>12. Jobs & Gigs</span>
+                </div>
+                <div class="service-item">
+                    <div class="icon-box bg-navy"><i class="fa-solid fa-scissors"></i></div>
+                    <span>13. Barbershop</span>
+                </div>
+                <div class="service-item">
+                    <div class="icon-box bg-orange"><i class="fa-solid fa-box"></i></div>
+                    <span>14. Moving</span>
+                </div>
+                <div class="service-item">
+                    <div class="icon-box bg-coral"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+                    <span>15. Handyman</span>
+                </div>
+                <div class="service-item">
+                    <div class="icon-box bg-teal"><i class="fa-solid fa-broom"></i></div>
+                    <span>16. Home Cleaning</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI Assistant Section -->
+        <section class="ai-assistant">
+            <div class="section-header">
+                <h3>Meet T.O 🤖</h3>
+            </div>
+            <p class="subtitle">Your AI Student Assistant</p>
+            <div class="chat-container">
+                <div class="chat-bubble received">
+                    <div class="chat-avatar"><i class="fa-solid fa-robot"></i></div>
+                    <div class="message">
+                        <p>Hi! I'm T.O.</p>
+                        <p>How can I help you today?</p>
+                    </div>
+                </div>
+                <div class="chat-prompts">
+                    <button>Where can I find cheap groceries near York?</button>
+                    <button>Best bank account for international students?</button>
+                    <button>How do I avoid rental scams?</button>
+                    <button>Best winter jacket under $150?</button>
+                </div>
+                <div class="chat-input-wrapper">
+                    <input type="text" placeholder="Ask T.O anything...">
+                    <button class="chat-send-btn"><i class="fa-solid fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI Powered For You Section -->
+        <section class="ai-recommendations">
+            <div class="section-header">
+                <h3>AI-Powered For You ✨</h3>
+                <a href="#" class="view-all">View all</a>
+            </div>
+            
+            <div class="recommendation-card">
+                <div class="img-placeholder" style="background-color: #ffebee;">🏠</div>
+                <div class="info">
+                    <h4>Recommended Housing</h4>
+                    <p>Near York University</p>
+                    <span class="price">From $650/month</span>
+                </div>
+                <i class="fa-solid fa-chevron-right"></i>
+            </div>
+
+            <div class="recommendation-card">
+                <div class="img-placeholder" style="background-color: #fce4ec;"><i class="fa-solid fa-sim-card" style="color: #c2185b;"></i></div>
+                <div class="info">
+                    <h4>Best SIM Deals</h4>
+                    <p>Chatr Mobile - $25/month</p>
+                </div>
+                <i class="fa-solid fa-chevron-right"></i>
+            </div>
+
+            <div class="recommendation-card">
+                <div class="img-placeholder" style="background-color: #e8f5e9;"><i class="fa-solid fa-piggy-bank" style="color: #388e3c;"></i></div>
+                <div class="info">
+                    <h4>Budget Tip</h4>
+                    <p>You can save up to $120/month on groceries!</p>
+                </div>
+                <i class="fa-solid fa-chevron-right"></i>
+            </div>
+        </section>
+
+        <!-- Student Survival Progress -->
+        <section class="survival-progress">
+            <div class="section-header">
+                <h3>Student Survival Progress 🏆</h3>
+                <span class="score">7/14 completed</span>
+            </div>
+            <p class="subtitle">You're doing great!</p>
+            <div class="progress-bar-container">
+                <div class="progress-fill"></div>
+            </div>
+            <div class="progress-steps">
+                <div class="step completed">
+                    <div class="step-icon"><i class="fa-solid fa-check"></i></div>
+                    <span>SIM</span>
+                </div>
+                <div class="step completed">
+                    <div class="step-icon"><i class="fa-solid fa-check"></i></div>
+                    <span>Bank</span>
+                </div>
+                <div class="step pending">
+                    <div class="step-icon"><i class="fa-solid fa-house"></i></div>
+                    <span>Housing</span>
+                </div>
+                <div class="step pending">
+                    <div class="step-icon"><i class="fa-solid fa-train-subway"></i></div>
+                    <span>Presto</span>
+                </div>
+                <div class="step more">
+                    <div class="step-icon"><i class="fa-solid fa-ellipsis"></i></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Connect & Meet -->
+        <section class="connect-meet">
+            <div class="section-header">
+                <h3>Connect & Meet</h3>
+                <a href="#" class="view-all">View all</a>
+            </div>
+            <p class="subtitle">Find students like you</p>
+            <div class="connect-card">
+                <div class="avatars-group">
+                    <img src="https://i.pravatar.cc/150?img=12" alt="Student 1">
+                    <img src="https://i.pravatar.cc/150?img=5" alt="Student 2">
+                    <img src="https://i.pravatar.cc/150?img=3" alt="Student 3">
+                    <img src="https://i.pravatar.cc/150?img=9" alt="Student 4">
+                </div>
+                <div class="connect-info">
+                    <div class="text-info">
+                        <h4>Students at York University</h4>
+                        <p>Same interests • Same city</p>
+                    </div>
+                    <button class="btn-connect">Connect</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Arrival Plan -->
+        <section class="arrival-plan">
+            <div class="section-header">
+                <h3>Your 48h Arrival Plan</h3>
+            </div>
+            <div class="plan-timeline">
+                <div class="plan-day active">
+                    <h4>Day 1</h4>
+                    <ul>
+                        <li><i class="fa-solid fa-circle-check"></i> Get a SIM</li>
+                        <li><i class="fa-solid fa-circle-check"></i> Open Bank Account</li>
+                        <li><i class="fa-solid fa-circle-check"></i> Get PRESTO Card</li>
+                    </ul>
+                </div>
+                <div class="plan-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                <div class="plan-day pending">
+                    <h4>Day 2</h4>
+                    <ul>
+                        <li><i class="fa-regular fa-circle-check"></i> Buy Groceries</li>
+                        <li><i class="fa-regular fa-circle-check"></i> Winter Essentials</li>
+                        <li><i class="fa-regular fa-circle"></i> Campus Tour</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        </div> <!-- End app-content-sheet -->
+        <!-- Footer Bottom Nav -->
+        <nav class="bottom-nav">
+            <a href="#" class="nav-item active">
+                <i class="fa-solid fa-house"></i>
+                <span>Home</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fa-regular fa-bookmark"></i>
+                <span>Bookings</span>
+            </a>
+            <a href="#" class="nav-item fab-center">
+                <div class="fab-btn">
+                    <i class="fa-solid fa-robot"></i>
+                </div>
+                <span>Ask T.O</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fa-solid fa-wallet"></i>
+                <span>Wallet</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fa-regular fa-user"></i>
+                <span>Profile</span>
+            </a>
+        </nav>
+
+        <!-- Dynamic Modal Overlay -->
+        <div class="modal-overlay" id="service-modal">
+            <div class="modal-card">
+                <div class="modal-close" id="modal-close"><i class="fa-solid fa-xmark"></i></div>
+                <h3 id="modal-title">Service Details</h3>
+                <p id="modal-subtitle">Find the best options for your needs.</p>
+                <div class="modal-content-list" id="modal-content">
+                    <!-- Dynamic content will be injected here via JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
